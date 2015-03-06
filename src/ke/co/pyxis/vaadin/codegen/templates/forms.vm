@@ -1,0 +1,78 @@
+## Insert a textbox for a String
+#macro (stringField $field)
+TextField ${field.name} = new MTextField("${field.name}");
+#end
+
+## Insert a textbox for a number
+#macro (numberField $field)
+TextField ${field.name} = new MTextField("${field.name}");
+#end
+
+## Insert a checkbox for a boolean
+#macro (booleanField $field)
+CheckBox ${field.name} = new CheckBox("${field.name}");
+#end
+
+## Insert a dropdown for an enum
+#macro (enumField $field)
+EnumSelect ${field.name} = new EnumSelect("${field.name}").withWidth("8em");
+
+#end
+## Insert an HTML Input version of a field
+#macro(htmlField $field)
+#if ($field.string)
+    #stringField ( $field)
+#elseif($field.number)
+    #numberField ($field)
+#elseif($field.boolean)
+    #booleanField ( $field)
+#elseif($field.enum)
+    #enumField ( $field)
+#else
+    #stringField ($field)
+#end
+#end
+package ${package};
+import com.vaadin.ui.Component;
+import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.DateField;
+import com.vaadin.ui.TextField;
+import org.vaadin.viritin.fields.EnumSelect;
+import org.vaadin.viritin.fields.MTextField;
+import org.vaadin.viritin.form.AbstractForm;
+import org.vaadin.viritin.layouts.MFormLayout;
+import org.vaadin.viritin.layouts.MHorizontalLayout;
+import org.vaadin.viritin.layouts.MVerticalLayout;
+/**
+* Created by Vaadin Crud Generator.
+*/
+@org.springframework.stereotype.Component
+public class ${entity.name}Form extends AbstractForm<${entity.name}> {
+#foreach ($field in $entity.fields)
+    #if(!$field.collection)
+        #htmlField($field)
+    #else
+
+    #end
+#end
+    @Override
+    protected Component createContent() {
+    return new MVerticalLayout(
+    new MHorizontalLayout(
+    new MFormLayout(#foreach ($field in $entity.fields)#if(!$field.collection)${field.name}#if($foreach.hasNext),#end
+#else
+#end
+#end).withMargin(false)
+    ),
+
+    getToolbar()
+    );
+    }
+    public ${entity.name}Form() {
+    setEagerValidation(true);
+    }
+    public ${entity.name}Form(${entity.name} entity) {
+    setEagerValidation(true);
+    }
+}
+

@@ -1,0 +1,16 @@
+package ${package};
+import java.util.List;
+
+/**
+* Created by Vaadin Crud Generator.
+*/
+
+public interface ${entity.name}Service {
+List<${entity.name} > findAll();
+
+    void save(${entity.name} entity);
+
+    void delete(${entity.name} entity);
+
+    void update(${entity.name} entity);
+}

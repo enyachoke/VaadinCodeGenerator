@@ -1,0 +1,10 @@
+package ${package};
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+/**
+* Created by Vaadin Crud Generator.
+*/
+@Repository
+public interface ${entity.name}Repo extends JpaRepository<${entity.name},Long> {
+}

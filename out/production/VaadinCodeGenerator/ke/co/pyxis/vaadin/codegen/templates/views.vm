@@ -1,0 +1,142 @@
+package ${package};
+import com.vaadin.navigator.View;
+import com.vaadin.navigator.ViewChangeListener;
+import com.vaadin.server.FontAwesome;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.CssLayout;
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.TextField;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.vaadin.spring.navigator.annotation.VaadinView;
+import org.vaadin.viritin.button.MButton;
+import org.vaadin.viritin.fields.MTable;
+import org.vaadin.viritin.fields.MTextField;
+import org.vaadin.viritin.fields.MValueChangeEvent;
+import org.vaadin.viritin.label.Header;
+import org.vaadin.viritin.layouts.MHorizontalLayout;
+import org.vaadin.viritin.layouts.MVerticalLayout;
+
+import javax.annotation.PostConstruct;
+
+/**
+* Created by Vaadin Crud Generator.
+*/
+
+@VaadinView(name= ${entity.name}View.VIEW_NAME)
+public class ${entity.name}View extends CssLayout implements View {
+public static final String VIEW_NAME="${entity.name}s";
+@Autowired
+${entity.name}Service service;
+@Autowired
+${entity.name}Form form;
+
+@Autowired
+${entity.name}Repo repo;
+
+// Instantiate and configure a Table to list PhoneBookEntries
+MTable<${entity.name}> entryList = new MTable<>(${entity.name}.class)
+    .withHeight("450px")
+    .withFullWidth()
+    .withProperties()
+
+    .withColumnHeaders();
+
+    // Instanticate buttons, hook directly to listener methods in this class
+    Button addNew = new MButton(FontAwesome.PLUS, this::addNew);
+    Button delete = new MButton(FontAwesome.TRASH_O, this::deleteSelected);
+    TextField filter = new MTextField().withInputPrompt("filter...");
+
+    private void addNew(Button.ClickEvent e) {
+    entryList.setValue(null);
+    editEntry(new ${entity.name}());
+    }
+
+    private void deleteSelected(Button.ClickEvent e) {
+    service.delete(entryList.getValue());
+    listEntries();
+    entryList.setValue(null);
+    }
+
+    private void listEntries(String filter) {
+    entryList.setBeans(service.findAll());
+    }
+
+    private void listEntries() {
+    listEntries(filter.getValue());
+    }
+
+    public void entryEditCanceled(${entity.name} entry) {
+    editEntry(entryList.getValue());
+    }
+
+    public void entrySelected(MValueChangeEvent<${entity.name}> event) {
+        editEntry(event.getValue());
+        }
+
+        /**
+        * Assigns the given entry to form for editing.
+        *
+        * @param entry
+        */
+        private void editEntry(${entity.name} entry) {
+        if (entry == null) {
+        form.setVisible(false);
+        delete.setEnabled(false);
+        } else {
+        boolean persisted = entry.getId() != null;
+        if (persisted) {
+        // reattach (in case Hibernate is in use)
+        //entry = service.refreshEntry(entry);
+        }
+        delete.setEnabled(persisted);
+        form.setEntity(entry);
+        form.focusFirst();
+        }
+        }
+
+        public void entrySaved(${entity.name} value) {
+        try {
+        service.save(value);
+        form.setVisible(false);
+        } catch (Exception e) {
+        System.out.println("Error=====>"+e);
+        Notification.show("Saving entity failed!", e.
+        getLocalizedMessage(), Notification.Type.WARNING_MESSAGE);
+        }
+        // deselect the entity
+        entryList.setValue(null);
+        // refresh list
+        listEntries();
+        }
+
+
+        @PostConstruct
+        void init() {
+        // Add some event listners, e.g. to hook filter input to actually
+        // filter the displayed entries
+        filter.addTextChangeListener(e -> {
+        listEntries(e.getText());
+        });
+        entryList.addMValueChangeListener(this::entrySelected);
+        form.setSavedHandler(this::entrySaved);
+        form.setResetHandler(this::entryEditCanceled);
+        form.setVisible(false);
+
+        addComponents(
+        new MVerticalLayout(
+        new Header("${entity.name}"),
+        new MHorizontalLayout(addNew, delete, filter),
+        new MHorizontalLayout(entryList, form)
+        )
+        );
+
+        // List all entries and select first entry in the list
+        listEntries();
+        entryList.setValue(entryList.firstItemId());
+        }
+
+        @Override
+        public void enter(ViewChangeListener.ViewChangeEvent event) {
+
+        }
+        }

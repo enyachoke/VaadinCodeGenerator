@@ -1,0 +1,42 @@
+package ${package};
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import java.util.List;
+
+/**
+* Created by Vaadin Crud Generator.
+*/
+
+@Service
+@Transactional
+public class ${entity.name}ServiceImpl implements ${entity.name}Service {
+@Autowired
+${entity.name}Repo repo;
+@PersistenceContext
+private EntityManager em;
+@Override
+public List<${entity.name}> findAll() {
+    return repo.findAll();
+    }
+
+
+    @Override
+    public void save(${entity.name} entity) {
+    repo.save(entity);
+    }
+
+    @Override
+    public void delete(${entity.name} entity) {
+    repo.delete(entity);
+    }
+
+
+    @Override
+    public void update(${entity.name} entity) {
+    em.merge(entity);
+    }
+}
